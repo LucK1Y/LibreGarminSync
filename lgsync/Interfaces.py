@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import List
 from gpxpy.gpx import GPX
 import pandas as pd
 from entities import FitFileWithPath, GpxWithPath, Settings
@@ -9,6 +9,12 @@ from entities import FitFileWithPath, GpxWithPath, Settings
 class IFitFileRepository(ABC):
     @abstractmethod
     def fetch_local_fit_files(self) -> List[FitFileWithPath]:
+        pass
+
+    @abstractmethod
+    def move_local_fit_file_to_directory(
+        self, fit_file: FitFileWithPath, target_directory: Path
+    ):
         pass
 
     @abstractmethod

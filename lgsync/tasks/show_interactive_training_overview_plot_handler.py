@@ -32,7 +32,7 @@ class ShowInteractiveTrainingOverviewPlotHandler(ITaskHandler):
         print(weekly_df.columns)
 
         # seaborn.set_style("whitegrid")
-        fig, axes = plt.subplots(2, 1, figsize=(10, 6))
+        fig, axes = plt.subplots(3, 1, figsize=(15, 10))
 
         plt.subplots_adjust(left=0.1, bottom=0.25)
         ax_slider = plt.axes([0.1, 0.1, 0.8, 0.05])
@@ -83,4 +83,38 @@ class ShowInteractiveTrainingOverviewPlotHandler(ITaskHandler):
 
         update(slider.val)
         slider.on_changed(update)
+
+        # add an actual table for yearly summary into pyplot
+        yearly_df = (
+            start_df[
+                [
+                    "total_distance_km",
+                    "total_elevation_gain",
+                    "total_elevation_loss",
+                    "date",
+                ]
+            ]
+            .resample("Y", on="date")
+            .sum()
+        )
+
+        table_data = yearly_df[
+            ["total_distance_km", "total_elevation_gain", "total_elevation_loss"]
+        ].round(1)
+        table_data.index = table_data.index.year
+        table_ax = fig.add_subplot(111, frame_on=False)
+        table_ax.xaxis.set_visible(False)
+        table_ax.yaxis.set_visible(False)
+        table = table_ax.table(
+            cellText=table_data.values,
+            rowLabels=table_data.index,
+            colLabels=table_data.columns,
+            cellLoc="center",
+            rowLoc="center",
+            loc="bottom",
+        )
+        table.auto_set_font_size(False)
+        table.set_fontsize(10)
+        table.scale(1, 1.5)
+
         plt.show()

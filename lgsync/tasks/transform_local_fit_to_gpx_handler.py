@@ -10,6 +10,7 @@ from Interfaces import (
     IElevationProvider,
 )
 from typing import Optional
+from pathlib import Path
 
 
 class TransformLocalFitToGpxHandler(ITaskHandler):
@@ -19,11 +20,13 @@ class TransformLocalFitToGpxHandler(ITaskHandler):
         gpx_file_repo: IGpxFileRepository,
         gpx_service: IGpxService,
         elevation_provider: Optional[IElevationProvider] = None,
+        empty_files_directory: Optional[Path] = None,
     ) -> None:
         self.fit_file_repo = fit_file_repo
         self.gpx_file_repo = gpx_file_repo
         self.gpx_service = gpx_service
         self.elevation_provider = elevation_provider
+        self.empty_files_directory = empty_files_directory
 
     def handle(self):
         fit_files = self.fit_file_repo.fetch_local_fit_files()
@@ -69,8 +72,9 @@ class TransformLocalFitToGpxHandler(ITaskHandler):
 
             if not gpx_points:
                 print(
-                    f"Warning: No track points found in FIT file {fit_file.file_path}"
+                    f"Warning: No track points found in FIT file {fit_file.file_path}. If specified moving to empty file dir."
                 )
+                self.fit_file_repo.move_local_fit_file_to_directory(fit_file)
                 continue
 
             time_stamp = gpx_points[0].time.date().strftime("%Y-%m-%d")

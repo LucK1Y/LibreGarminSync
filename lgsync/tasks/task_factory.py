@@ -16,10 +16,13 @@ from tasks.show_interactive_training_overview_plot_handler import (
     ShowInteractiveTrainingOverviewPlotHandler,
 )
 
+from entities import Settings
+
 
 class TaskFactory(object):
-    def __init__(self, tasks: List[Task]):
+    def __init__(self, tasks: List[Task], settings: Settings):
         self.tasks = tasks
+        self.settings = settings
 
     def run_tasks(
         self,

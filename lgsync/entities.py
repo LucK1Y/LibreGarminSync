@@ -112,9 +112,14 @@ class Settings:
     local_fit_directory: Path
     gpx_directory: Path
     summary_cache_file: Path
+    empty_files_directory: Optional[Path] = None
 
     @classmethod
     def from_config(cls, config: ConfigParser) -> "Settings":
+        empty_files_directory: Optional[Path] = None
+        if "empty_files_directory" in config["Paths"].keys():
+            empty_files_directory = Path(config["Paths"]["empty_files_directory"])
+
         return cls(
             remote_fit_directory=Path(
                 config["Paths"]["remote_fit_directory"]
@@ -122,6 +127,9 @@ class Settings:
             local_fit_directory=Path(config["Paths"]["local_fit_directory"]).resolve(),
             gpx_directory=Path(config["Paths"]["gpx_directory"]).resolve(),
             summary_cache_file=Path(config["Paths"]["summary_cache_file"]).resolve(),
+            empty_files_directory=(
+                empty_files_directory if empty_files_directory else None
+            ),
         )
 
 

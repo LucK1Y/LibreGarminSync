@@ -14,6 +14,7 @@ def main():
     fit_file_repo = FitFileRepository(
         local_fit_directory=settings.local_fit_directory,
         remote_fit_directory=settings.remote_fit_directory,
+        empty_files_directory=settings.empty_files_directory,
     )
     gpx_file_repo = GpxFileRepository(settings.gpx_directory)
 
@@ -21,7 +22,7 @@ def main():
 
     elevation_provider = SRMTElevationProvider()
 
-    task_factory: TaskFactory = TaskFactory(console_args.tasks)
+    task_factory: TaskFactory = TaskFactory(console_args.tasks, settings=settings)
     task_factory.run_tasks(
         fit_file_repo=fit_file_repo,
         gpx_file_repo=gpx_file_repo,

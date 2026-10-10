@@ -1,6 +1,6 @@
 from pathlib import Path
 from shutil import copyfile
-from typing import List
+from typing import List, Optional
 from fitparse import FitFile
 from gpxpy.gpx import GPX
 import srtm
@@ -34,9 +34,15 @@ class GpxFileRepository(IGpxFileRepository):
 
 
 class FitFileRepository(IFitFileRepository):
-    def __init__(self, local_fit_directory: Path, remote_fit_directory: Path):
+    def __init__(
+        self,
+        local_fit_directory: Path,
+        remote_fit_directory: Path,
+        empty_files_directory: Optional[Path] = None,
+    ):
         self.local_fit_directory = local_fit_directory
         self.remote_fit_directory = remote_fit_directory
+        self.empty_files_directory = empty_files_directory
 
         if not self.local_fit_directory.exists():
             print("Warning: LOCAL Fit directory does not exist. Creating it.")
@@ -46,6 +52,10 @@ class FitFileRepository(IFitFileRepository):
             print(
                 "Warning: REMOTE Fit directory does not exist. Maybe watch is not connected."
             )
+
+        if empty_files_directory and not empty_files_directory.exists():
+            print("Warning: Empty files directory does not exist. Creating it.")
+            empty_files_directory.mkdir(parents=True, exist_ok=True)
 
     def __fetch_fit_files_from_dir(self, base_directory: Path) -> List[FitFileWithPath]:
         if not base_directory.exists():
@@ -70,6 +80,14 @@ class FitFileRepository(IFitFileRepository):
 
         copyfile(remote_file_path, new_file_path)
         return new_file_path
+
+    def move_local_fit_file_to_directory(self, fit_file: FitFileWithPath):
+        if not self.empty_files_directory or not self.empty_files_directory.exists():
+            return
+
+        new_file_path = self.empty_files_directory / fit_file.file_path.name
+        fit_file.file_path.rename(new_file_path)
+        print(f"Moved file {fit_file.file_path} to {new_file_path}.")
 
 
 class SRMTElevationProvider(IElevationProvider):
