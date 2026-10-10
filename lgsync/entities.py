@@ -36,6 +36,7 @@ class GpxStats:
     total_distance_km: float
     total_elevation_gain: float
     total_elevation_loss: float
+    total_minutes: int
     date: str
     filename: str
 
@@ -74,6 +75,8 @@ class GpxWithPath:
         total_elevation_gain = 0.0
         total_elevation_loss = 0.0
 
+        total_minutes = 0
+
         for track in self.gpx.tracks:
             for segment in track.segments:
                 total_distance_m += segment.length_2d() or 0.0
@@ -81,6 +84,10 @@ class GpxWithPath:
                 elevation_data = segment.get_uphill_downhill()
                 total_elevation_gain += elevation_data[0] or 0.0
                 total_elevation_loss += elevation_data[1] or 0.0
+
+            bounds = track.get_time_bounds()
+            if bounds[0] and bounds[1]:
+                total_minutes += round((bounds[1] - bounds[0]).total_seconds() / 60.0)
 
         total_distance_km = total_distance_m / 1000
 
@@ -90,6 +97,7 @@ class GpxWithPath:
             total_elevation_loss=total_elevation_loss,
             date=self._file_path.stem.split("_")[1],
             filename=self._file_path.name,
+            total_minutes=total_minutes,
         )
 
     @classmethod

@@ -23,7 +23,12 @@ class ShowInteractiveTrainingOverviewPlotHandler(ITaskHandler):
         window_size_in_weeks = 4
         moving_averages = (
             weekly_df[
-                ["total_distance_km", "total_elevation_gain", "total_elevation_loss"]
+                [
+                    "total_distance_km",
+                    "total_elevation_gain",
+                    "total_elevation_loss",
+                    "total_minutes",
+                ]
             ]
             .rolling(window=window_size_in_weeks)
             .mean()
@@ -60,6 +65,7 @@ class ShowInteractiveTrainingOverviewPlotHandler(ITaskHandler):
             axes[0].clear()
             axes[1].clear()
 
+            # Km Plot 1
             seaborn.lineplot(
                 data=data_subset,
                 x="date",
@@ -75,8 +81,27 @@ class ShowInteractiveTrainingOverviewPlotHandler(ITaskHandler):
                 color="green",
                 label=f"Distance (km): {window_size_in_weeks}-week moving average",
             )
+
+            # Elevation Plot 2
             seaborn.lineplot(
                 data=df_height_data, x="date", y="value", ax=axes[1], hue="variable"
+            )
+
+            # Time On feet Plot 3
+            seaborn.lineplot(
+                data=data_subset,
+                x="date",
+                y="total_minutes",
+                ax=axes[2],
+                label="Time on Feet (minutes)",
+            )
+            seaborn.lineplot(
+                data=data_subset,
+                x="date",
+                y="total_minutes_mv",
+                ax=axes[2],
+                color="green",
+                label=f"Time on Feet (minutes): {window_size_in_weeks}-week moving average",
             )
 
             fig.canvas.draw_idle()
@@ -91,15 +116,21 @@ class ShowInteractiveTrainingOverviewPlotHandler(ITaskHandler):
                     "total_distance_km",
                     "total_elevation_gain",
                     "total_elevation_loss",
+                    "total_minutes",
                     "date",
                 ]
             ]
-            .resample("Y", on="date")
+            .resample("YE", on="date")
             .sum()
         )
 
         table_data = yearly_df[
-            ["total_distance_km", "total_elevation_gain", "total_elevation_loss"]
+            [
+                "total_distance_km",
+                "total_elevation_gain",
+                "total_elevation_loss",
+                "total_minutes",
+            ]
         ].round(1)
         table_data.index = table_data.index.year
         table_ax = fig.add_subplot(111, frame_on=False)

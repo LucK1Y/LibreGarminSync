@@ -40,7 +40,7 @@ class GpxService(IGpxService):
 
         else:
             print("No stats cache found.")
-            df_cache = pd.DataFrame()
+            df_cache = pd.DataFrame(columns=["filename"])
 
         cached_file_names = df_cache["filename"].values
 
